@@ -1,20 +1,28 @@
-export class EventsQueryDto {
-  from?: string; // ISO 8601 date string
-  to?: string;
-  source?: 'facebook' | 'tiktok';
-  funnelStage?: 'top' | 'bottom';
-  eventType?: string;
-}
+import { z } from 'zod';
 
-export class RevenueQueryDto {
-  from?: string;
-  to?: string;
-  source?: 'facebook' | 'tiktok';
-  campaignId?: string;
-}
+// Zod schemas for validation
+export const EventsQuerySchema = z.object({
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+  source: z.enum(['facebook', 'tiktok']).optional(),
+  funnelStage: z.enum(['top', 'bottom']).optional(),
+  eventType: z.string().optional(),
+});
 
-export class DemographicsQueryDto {
-  from?: string;
-  to?: string;
-  source?: 'facebook' | 'tiktok';
-}
+export const RevenueQuerySchema = z.object({
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+  source: z.enum(['facebook', 'tiktok']).optional(),
+  campaignId: z.string().optional(),
+});
+
+export const DemographicsQuerySchema = z.object({
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+  source: z.enum(['facebook', 'tiktok']).optional(),
+});
+
+// TypeScript types inferred from schemas
+export type EventsQueryDto = z.infer<typeof EventsQuerySchema>;
+export type RevenueQueryDto = z.infer<typeof RevenueQuerySchema>;
+export type DemographicsQueryDto = z.infer<typeof DemographicsQuerySchema>;

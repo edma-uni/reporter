@@ -9,29 +9,29 @@ datasource db {
 
 // Denormalized table for event statistics
 model EventStatistic {
-  id            String   @id @default(cuid())
-  eventId       String   @unique
+  id      String @id @default(cuid())
+  eventId String @unique
 
-  timestamp     DateTime
-  source        String   // 'facebook' or 'tiktok'
-  funnelStage   String   // 'top' or 'bottom'
-  eventType     String
+  timestamp   DateTime
+  source      String // 'facebook' or 'tiktok'
+  funnelStage String // 'top' or 'bottom'
+  eventType   String
 
   // For Facebook
-  userId        String?
-  userName      String?
-  userAge       Int?
-  userGender    String?
-  country       String?
-  city          String?
+  userId     String?
+  userName   String?
+  userAge    Int?
+  userGender String?
+  country    String?
+  city       String?
 
   // For TikTok
-  username      String?
-  followers     Int?
-  watchTime     Int?
+  username          String?
+  followers         Int?
+  watchTime         Int?
   percentageWatched Decimal?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([timestamp])
   @@index([source])
@@ -43,25 +43,25 @@ model EventStatistic {
 
 // Denormalized table for revenue data
 model RevenueRecord {
-  id            String   @id @default(cuid())
-  eventId       String   @unique
+  id      String @id @default(cuid())
+  eventId String @unique
 
-  timestamp     DateTime
-  source        String   // 'facebook' or 'tiktok'
-  eventType     String   // 'checkout.complete' or 'purchase'
+  timestamp DateTime
+  source    String // 'facebook' or 'tiktok'
+  eventType String // 'checkout.complete' or 'purchase'
 
   purchaseAmount Decimal @db.Decimal(10, 2)
 
   // For Facebook
-  campaignId    String?
-  adId          String?
-  userId        String?
+  campaignId String?
+  adId       String?
+  userId     String?
 
   // For TikTok
   username      String?
   purchasedItem String?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([timestamp])
   @@index([source])
@@ -71,25 +71,25 @@ model RevenueRecord {
 
 // Denormalized table for demographics
 model DemographicRecord {
-  id            String   @id @default(cuid())
-  eventId       String   @unique
+  id      String @id @default(cuid())
+  eventId String @unique
 
-  timestamp     DateTime
-  source        String   // 'facebook' or 'tiktok'
+  timestamp DateTime
+  source    String // 'facebook' or 'tiktok'
 
   // Facebook demographics
-  userId        String?
-  userName      String?
-  age           Int?
-  gender        String?
-  country       String?
-  city          String?
+  userId   String?
+  userName String?
+  age      Int?
+  gender   String?
+  country  String?
+  city     String?
 
   // TikTok demographics
-  username      String?
-  followers     Int?
+  username  String?
+  followers Int?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([timestamp])
   @@index([source])
