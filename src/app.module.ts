@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ReportsModule } from './reports/reports.module';
 import { EventsModule } from './events/events.module';
+import { HealthModule } from './health/health.module';
+import { MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
 
 @Module({
   imports: [
@@ -30,8 +31,11 @@ import { EventsModule } from './events/events.module';
     MetricsModule,
     ReportsModule,
     EventsModule,
+    HealthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+  }
+}
