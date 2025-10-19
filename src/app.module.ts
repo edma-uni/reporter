@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { PrismaModule } from './prisma/prisma.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ReportsModule } from './reports/reports.module';
-import { EventsModule } from './events/events.module';
 import { HealthModule } from './health/health.module';
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
@@ -14,6 +14,7 @@ import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware'
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     PrometheusModule.register({
       defaultMetrics: {
         enabled: true,
@@ -30,7 +31,6 @@ import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware'
     PrismaModule,
     MetricsModule,
     ReportsModule,
-    EventsModule,
     HealthModule,
   ],
 })

@@ -1,5 +1,6 @@
-import { Controller, Get, Query, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Query, UsePipes } from '@nestjs/common';
 import { ReportsService } from './reports.service';
+import { MaterializedViewsRefreshService } from './services/materialized-views-refresh.service';
 import type {
   EventsQueryDto,
   RevenueQueryDto,
@@ -14,7 +15,10 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(
+    private readonly reportsService: ReportsService,
+    private readonly refreshService: MaterializedViewsRefreshService,
+  ) {}
 
   @Get('events')
   @UsePipes(new ZodValidationPipe(EventsQuerySchema))
@@ -32,5 +36,14 @@ export class ReportsController {
   @UsePipes(new ZodValidationPipe(DemographicsQuerySchema))
   async getDemographics(@Query() query: DemographicsQueryDto) {
     return this.reportsService.getDemographics(query);
+  }
+
+  @Post('refresh-views')
+  async refreshMaterializedViews() {
+    await this.refreshService.manualRefreshAll();
+    return {
+      message: 'Materialized views refresh initiated successfully',
+      timestamp: new Date().toISOString(),
+    };
   }
 }

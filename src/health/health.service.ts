@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NatsConsumerService } from '../nats/nats-consumer.service';
 
 export interface HealthCheck {
   name: string;
@@ -19,7 +18,6 @@ export class HealthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly natsConsumer: NatsConsumerService,
   ) {}
 
   /**
@@ -38,10 +36,6 @@ export class HealthService {
     // Check database connection
     const dbCheck = await this.checkDatabase();
     checks.push(dbCheck);
-
-    // Check NATS connection
-    const natsCheck = this.checkNats();
-    checks.push(natsCheck);
 
     const isReady = checks.every((check) => check.status === 'up');
 
@@ -63,34 +57,6 @@ export class HealthService {
       this.logger.error(`Database health check failed: ${errorMessage}`);
       return {
         name: 'database',
-        status: 'down',
-        message: errorMessage,
-      };
-    }
-  }
-
-  private checkNats(): HealthCheck {
-    try {
-      const isConnected = this.natsConsumer.isConnected();
-      if (isConnected) {
-        return {
-          name: 'nats',
-          status: 'up',
-          message: 'Connected to NATS',
-        };
-      } else {
-        return {
-          name: 'nats',
-          status: 'down',
-          message: 'Not connected to NATS',
-        };
-      }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`NATS health check failed: ${errorMessage}`);
-      return {
-        name: 'nats',
         status: 'down',
         message: errorMessage,
       };

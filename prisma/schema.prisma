@@ -7,93 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Denormalized table for event statistics
-model EventStatistic {
-  id      String @id @default(cuid())
-  eventId String @unique
+// --- Manually Defined Materialized Views ---
+// Added @@ignore to tell Prisma to never try and migrate these.
 
-  timestamp   DateTime
-  source      String // 'facebook' or 'tiktok'
-  funnelStage String // 'top' or 'bottom'
-  eventType   String
+model report_events_hourly {
+  hour        DateTime? @db.Timestamp(6)
+  source      String?
+  funnelStage String?   @map("funnelStage")
+  eventType   String?   @map("eventType")
+  event_count BigInt?
 
-  // For Facebook
-  userId     String?
-  userName   String?
-  userAge    Int?
-  userGender String?
-  country    String?
-  city       String?
-
-  // For TikTok
-  username          String?
-  followers         Int?
-  watchTime         Int?
-  percentageWatched Decimal?
-
-  createdAt DateTime @default(now())
-
-  @@index([timestamp])
-  @@index([source])
-  @@index([funnelStage])
-  @@index([eventType])
-  @@index([source, timestamp])
-  @@index([source, funnelStage, timestamp])
+  @@unique([hour, source, funnelStage, eventType], name: "idx_report_events_hourly_unique")
+  @@ignore
 }
 
-// Denormalized table for revenue data
-model RevenueRecord {
-  id      String @id @default(cuid())
-  eventId String @unique
+model report_revenue_hourly {
+  hour              DateTime? @db.Timestamp(6)
+  source            String?
+  campaign_id       String?
+  total_revenue     Decimal?
+  transaction_count BigInt?
 
-  timestamp DateTime
-  source    String // 'facebook' or 'tiktok'
-  eventType String // 'checkout.complete' or 'purchase'
-
-  purchaseAmount Decimal @db.Decimal(10, 2)
-
-  // For Facebook
-  campaignId String?
-  adId       String?
-  userId     String?
-
-  // For TikTok
-  username      String?
-  purchasedItem String?
-
-  createdAt DateTime @default(now())
-
-  @@index([timestamp])
-  @@index([source])
-  @@index([source, timestamp])
-  @@index([campaignId])
+  @@unique([hour, source, campaign_id], name: "idx_report_revenue_hourly_unique")
+  @@ignore
 }
 
-// Denormalized table for demographics
-model DemographicRecord {
-  id      String @id @default(cuid())
-  eventId String @unique
+model report_demographics_fb_daily {
+  day          DateTime? @db.Timestamp(6)
+  eventType    String?   @map("eventType")
+  gender       String?
+  age          Int?
+  country      String?
+  city         String?
+  unique_users BigInt?
+  event_count  BigInt?
 
-  timestamp DateTime
-  source    String // 'facebook' or 'tiktok'
+  @@unique([day, eventType, gender, age, country, city], name: "idx_report_demographics_fb_daily_unique")
+  @@ignore
+}
 
-  // Facebook demographics
-  userId   String?
-  userName String?
-  age      Int?
-  gender   String?
-  country  String?
-  city     String?
+model report_demographics_tiktok_daily {
+  day              DateTime? @db.Timestamp(6)
+  eventType        String?   @map("eventType")
+  country          String?
+  follower_segment String?
+  unique_users     BigInt?
+  event_count      BigInt?
 
-  // TikTok demographics
-  username  String?
-  followers Int?
-
-  createdAt DateTime @default(now())
-
-  @@index([timestamp])
-  @@index([source])
-  @@index([source, timestamp])
-  @@index([country])
-  @@index([gender])
+  @@unique([day, eventType, country, follower_segment], name: "idx_report_demographics_tiktok_daily_unique")
+  @@ignore
 }
